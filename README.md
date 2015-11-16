@@ -1,4 +1,5 @@
 # Filter Tickets script
+![filterTickets icon](http://gitlab.diageo.net/uploads/project/avatar/113/filterTickets.png)
 
 ## Installing
 1. Please ensure that Powershell is enabled
@@ -8,7 +9,7 @@
 ## Configuring
 1. Edit the 'filterTickets.ps1' file. Look for the line that begins `$agents = @{`, and modify the list. Each agent name should be written exactly as it appears in ServiceNow, and each line must end in a comma except the last one.
 2. In case you wish to modify the output format, please look for the line that begins `$out = "$agent - $date.csv"` and modify it to fit your needs. Examples below:
-  * `$out = "$date - $agent.csv"` - creates a folder for each agent, saves the CSV in that folder with the date as the name.
+  * `$out = "$date - $agent.csv"` - reverses the agent and date format
   * `$out = "Tickets handled by $agent on $date.csv"` - slightly more verbose version of the default.
 3. Set up a report in ServiceNow that can be exported to CSV. You can choose what is in this report, and choose which columns are displayed, as long as the column 'Work notes' is present.
 
