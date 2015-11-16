@@ -21,9 +21,9 @@ param (
 ## Customise the lines below to add agents. Make sure each line EXCEPT the last ends with a comma.
 
 $agents = @(
-    "Yuan Ci",
-    "Gabor Csecsur",
-    "Joe Innes"
+    "Agent 1",
+    "Agent 2",
+    "Agent 3"
 ) 
 
 $csv = Import-Csv $in # Import the input file from a CSV into a Powershell Object
