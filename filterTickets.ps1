@@ -24,7 +24,7 @@ $agents = @(
     "Agent 1",
     "Agent 2",
     "Agent 3"
-) 
+)
 
 $csv = Import-Csv $in # Import the input file from a CSV into a Powershell Object
 
@@ -48,12 +48,9 @@ $getFirstLine = $true # Get the first line
 ## For each .tmp file
 get-childItem "*.tmp" | foreach {
 
-    if ($filePath -ne $in)
-    {
-
       $filePath = $_
 
-      $lines =  $lines = Get-Content $filePath  # Get the the lines out of the file
+      $lines = Get-Content $filePath  # Get the the lines out of the file
       $linesToWrite = switch($getFirstLine) { 
            $true  {$lines} # Put all of them in the $linesToWrite var if getfirstline is true
            $false {$lines | Select -Skip 1} # Otherwise, skip the first line
@@ -63,5 +60,4 @@ get-childItem "*.tmp" | foreach {
       $getFirstLine = $false # Don't get the first line again
       Add-Content "merged.csv" $linesToWrite # Output the final CSV
       Remove-Item $_ # Delete the temp file
-    }
 }
