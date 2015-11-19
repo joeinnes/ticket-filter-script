@@ -21,9 +21,9 @@ param (
 ## Customise the lines below to add agents. Make sure each line EXCEPT the last ends with a comma.
 
 $agents = @(
-    "Agent 1",
-    "Agent 2",
-    "Agent 3"
+    "Gabor Csecsur",
+    "Yasser Puentes",
+    "Lilian Halasz"
 ) 
 
 $csv = Import-Csv $in # Import the input file from a CSV into a Powershell Object
@@ -36,9 +36,9 @@ foreach ($agent in $agents) { # For each agent in the list
 
 
     $out = $out -replace "\/", " " # Replace the / in the date because Windows won't let you use that in a file name
-    $filteredCsv = $csv | Where-Object {$_.work_notes -like "$date ??:??:?? - $agent*"} # The heavy lifting - fetch each row where the Worknotes column contains "DD/MM/YYYY HH:MM:SS - Agent Name" and store it in a new var
-    $filteredCsvPlusName = $filteredCsv | Select-Object *,@{Name='Agent';Expression={$agent}} # Add a column with the agent name
-    $filteredCsvPlusName | Export-Csv $out -notype -Encoding "UTF8" # Export this new var as a CSV file with no type information, and the .tmp extension.
+    $filteredCsv = $csv | Where-Object {$_.work_notes -like "*$date ??:??:?? - $agent*"} # The heavy lifting - fetch each row where the Worknotes column contains "DD/MM/YYYY HH:MM:SS - Agent Name" and store it in a new var
+    $filteredCsvPlusName = $filteredCsv | Select-Object *,@{Name='Agent';Expression={$agent}}
+    $filteredCsvPlusName | Export-Csv $out -notype -Encoding "UTF8"
 
 }
 
