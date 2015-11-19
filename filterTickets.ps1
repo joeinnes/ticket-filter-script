@@ -32,11 +32,36 @@ foreach ($agent in $agents) { # For each agent in the list
 
 ## Modify the line below to change the output file naming convention
 
-    $out = "$agent - $date.csv" # Set up the agent's output file name.
+    $out = "$agent - $date.tmp" # Set up the agent's output file name.
 
 
     $out = $out -replace "\/", " " # Replace the / in the date because Windows won't let you use that in a file name
     $filteredCsv = $csv | Where-Object {$_.work_notes -like "$date ??:??:?? - $agent*"} # The heavy lifting - fetch each row where the Worknotes column contains "DD/MM/YYYY HH:MM:SS - Agent Name" and store it in a new var
-    $filteredCsv | Export-Csv $out -delimiter `t -notype -Encoding "Unicode" # Export this new var as a Unicode encoded CSV file with a tab separator, and no type information.
+    $filteredCsvPlusName = $filteredCsv | Select-Object *,@{Name='Agent';Expression={$agent}} # Add a column with the agent name
+    $filteredCsvPlusName | Export-Csv $out -notype -Encoding "UTF8" # Export this new var as a CSV file with no type information, and the .tmp extension.
 
+}
+
+
+$getFirstLine = $true # Get the first line
+
+## For each .tmp file
+get-childItem "*.tmp" | foreach {
+
+    if ($filePath -ne $in)
+    {
+
+      $filePath = $_
+
+      $lines =  $lines = Get-Content $filePath  # Get the the lines out of the file
+      $linesToWrite = switch($getFirstLine) { 
+           $true  {$lines} # Put all of them in the $linesToWrite var if getfirstline is true
+           $false {$lines | Select -Skip 1} # Otherwise, skip the first line
+
+      }
+
+      $getFirstLine = $false # Don't get the first line again
+      Add-Content "merged.csv" $linesToWrite # Output the final CSV
+      Remove-Item $_ # Delete the temp file
+    }
 }
