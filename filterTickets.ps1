@@ -26,38 +26,84 @@ $agents = @(
     "Agent 3"
 )
 
+function Matches-WorkNotes($row, $agent, $date) {
+    
+    if ($row.work_notes -like "*$date ??:??:?? - $agent*" ) {
+        return $true
+    } else {
+        return $false
+    }
+}
+
+function Matches-AdditionalComments($row, $agent, $date) {
+    
+    if ($row.comments -like "*$date ??:??:?? - $agent*" ) {
+        return $true
+    } else {
+        return $false
+    }
+}
+
+function Matches-Resolution($row, $agent, $date) {
+    
+    if ($row.resolved_by -eq "$agent" -and $row.resolved_at -like "$date*") {
+        return $true
+    } else {
+        return $false
+    }
+}
+
+function Export-Temp($in, $out) {
+    $in | Export-Csv $out -notype -Encoding "UTF8"
+}
+
+function Merge-Files {
+    Remove-Item "merged.csv" # Delete any old file
+    $getFirstLine = $true # Get the first line
+
+    ## For each .tmp file
+    get-childItem "*.tmp" | foreach {
+
+        $filePath = $_
+
+        $lines = Get-Content $filePath  # Get the the lines out of the file
+        $linesToWrite = switch($getFirstLine) { 
+            $true  {$lines} # Put all of them in the $linesToWrite var if getfirstline is true
+            $false {$lines | Select -Skip 1} # Otherwise, skip the first line
+        }
+
+        $getFirstLine = $false # Don't get the first line again
+        Add-Content "merged.csv" $linesToWrite # Output the final CSV
+        Remove-Item $_ # Delete the temp file
+    }
+}
+
 $csv = Import-Csv $in # Import the input file from a CSV into a Powershell Object
+
 
 foreach ($agent in $agents) { # For each agent in the list
 
 ## Modify the line below to change the output file naming convention
 
     $out = "$agent - $date.tmp" # Set up the agent's output file name.
-
-
     $out = $out -replace "\/", " " # Replace the / in the date because Windows won't let you use that in a file name
-    $filteredCsv = $csv | Where-Object {$_.work_notes -like "*$date ??:??:?? - $agent*"} # The heavy lifting - fetch each row where the Worknotes column contains "DD/MM/YYYY HH:MM:SS - Agent Name" and store it in a new var
-    $filteredCsvPlusName = $filteredCsv | Select-Object *,@{Name='Agent';Expression={$agent}}
-    $filteredCsvPlusName | Export-Csv $out -notype -Encoding "UTF8"
+    $filteredCsv = @()
+    $filteredCsvPlusName = @()
+    
+    "Checking tickets handled by " + $agent
+    
+    foreach ($row in $csv) {
 
+        # if (  ) {
+        if ( Matches-WorkNotes $row $agent $date -or Matches-Resolution $row $agent $date -or Matches-AdditionalComments $row $agent $date ) {
+            $filteredCsv += $row
+        }
+    }
+    
+    $filteredCsvPlusName = $filteredCsv | Select-Object *,@{Name='agent';Expression={$agent}}
+    
+    Export-Temp $filteredCsvPlusName $out
+   
 }
 
-
-$getFirstLine = $true # Get the first line
-
-## For each .tmp file
-get-childItem "*.tmp" | foreach {
-
-      $filePath = $_
-
-      $lines = Get-Content $filePath  # Get the the lines out of the file
-      $linesToWrite = switch($getFirstLine) { 
-           $true  {$lines} # Put all of them in the $linesToWrite var if getfirstline is true
-           $false {$lines | Select -Skip 1} # Otherwise, skip the first line
-
-      }
-
-      $getFirstLine = $false # Don't get the first line again
-      Add-Content "merged.csv" $linesToWrite # Output the final CSV
-      Remove-Item $_ # Delete the temp file
-}
+Merge-Files
