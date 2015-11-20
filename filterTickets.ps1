@@ -30,23 +30,21 @@ function Matches-WorkNotes($row, $agent, $date) {
     
     if ($row.work_notes -like "*$date ??:??:?? - $agent*" ) {
         return $true
-    } else {
-        return $false
     }
+    
+    return $false
 }
 
 function Matches-AdditionalComments($row, $agent, $date) {
     
     if ($row.comments -like "*$date ??:??:?? - $agent*" ) {
         return $true
-    } else {
-        return $false
     }
+    
+    return $false
 }
 
 function Matches-Resolution($row, $agent, $date) {
-
-  return $false 
   
   if ($row.resolved_by -eq "$agent" -and $row.resolved_at -like "$date*") {
     return $true
