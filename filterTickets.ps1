@@ -93,8 +93,7 @@ foreach ($agent in $agents) { # For each agent in the list
     "Checking tickets handled by " + $agent
     
     foreach ($row in $csv) {
-
-        # if (  ) {
+        
         if ( Matches-WorkNotes $row $agent $date -or Matches-Resolution $row $agent $date -or Matches-AdditionalComments $row $agent $date ) {
             $filteredCsv += $row
         }
