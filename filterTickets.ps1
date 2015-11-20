@@ -21,9 +21,9 @@ param (
 ## Customise the lines below to add agents. Make sure each line EXCEPT the last ends with a comma.
 
 $agents = @(
-    "Agent 1",
-    "Agent 2",
-    "Agent 3"
+    "Joe Innes",
+    "Yuan Ci",
+    "Gabor Csecsur"
 )
 
 function Matches-WorkNotes($row, $agent, $date) {
@@ -45,12 +45,14 @@ function Matches-AdditionalComments($row, $agent, $date) {
 }
 
 function Matches-Resolution($row, $agent, $date) {
-    
-    if ($row.resolved_by -eq "$agent" -and $row.resolved_at -like "$date*") {
-        return $true
-    } else {
-        return $false
-    }
+
+  return $false 
+  
+  if ($row.resolved_by -eq "$agent" -and $row.resolved_at -like "$date*") {
+    return $true
+  }
+  
+  return $false
 }
 
 function Export-Temp($in, $out) {
@@ -93,9 +95,22 @@ foreach ($agent in $agents) { # For each agent in the list
     "Checking tickets handled by " + $agent
     
     foreach ($row in $csv) {
+        $matches = 0
         
-        if ( Matches-WorkNotes $row $agent $date -or Matches-Resolution $row $agent $date -or Matches-AdditionalComments $row $agent $date ) {
-            $filteredCsv += $row
+        if ( Matches-Resolution $row $agent $date ) {
+            $matches += 1
+        }
+        
+        if ( Matches-AdditionalComments $row $agent $date ) {
+            $matches += 1
+        }
+        
+        if ( Matches-WorkNotes $row $agent $date ) {
+            $matches += 1
+        }
+        
+        if ($matches -gt 0 ) {
+          $filteredCsv += $row
         }
     }
     
