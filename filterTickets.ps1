@@ -72,7 +72,7 @@ function Merge-Files {
             $false {$lines | Select -Skip 1} # Otherwise, skip the first line
         }
 
-        if ($row -ne $null) {
+        if ($linesToWrite -ne $null) {
             $getFirstLine = $false # Don't get the first line again (unless this file was empty)
         }
         Add-Content "merged.csv" $linesToWrite # Output the final CSV
