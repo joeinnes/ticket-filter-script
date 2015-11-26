@@ -21,9 +21,9 @@ param (
 ## Customise the lines below to add agents. Make sure each line EXCEPT the last ends with a comma.
 
 $agents = @(
-    "Joe Innes",
-    "Yuan Ci",
-    "Gabor Csecsur"
+    "Agent 1",
+    "Agent 2",
+    "Agent 3"
 )
 
 function Matches-WorkNotes($row, $agent, $date) {
@@ -72,7 +72,9 @@ function Merge-Files {
             $false {$lines | Select -Skip 1} # Otherwise, skip the first line
         }
 
-        $getFirstLine = $false # Don't get the first line again
+        if ($row -ne $null) {
+            $getFirstLine = $false # Don't get the first line again (unless this file was empty)
+        }
         Add-Content "merged.csv" $linesToWrite # Output the final CSV
         Remove-Item $_ # Delete the temp file
     }
